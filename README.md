@@ -1,21 +1,20 @@
-# 🧬 Aminoverse — Explore the Universe of Human Proteins
+# Aminoverse — Explore the Universe of Human Proteins
 
 **Aminoverse** is a smart, web-based application that allows users to search for human genes or proteins and explore their biological functions, associated diseases, 3D structures, and protein-protein interactions — all in one place.
 
 ---
 
-## 🚀 Features
+##  Features
 
-- 🔍 **Gene/Protein Search** — Search any human gene (e.g., TP53, BRCA1).
-- 🧠 **Biological Function** — View a brief description of the gene's biological role.
-- 🧬 **3D Protein Structure** — Direct link to UniProt’s 3D structure visualization.
-- 🔗 **Protein–Protein Interactions** — Graph of interacting partners using STRING.
-- ⚕️ **Disease Associations** — Disease summaries from DisGeNET API.
-- 💬 **(Optional)** AI-powered chatbot for follow-up queries.
+- **Gene/Protein Search** — Search any human gene (e.g., TP53, BRCA1).
+- **Biological Function** — View a brief description of the gene's biological role.
+- **3D Protein Structure** — Direct link to UniProt’s 3D structure visualization.
+- **Protein–Protein Interactions** — Graph of interacting partners using STRING.
+- **(Optional)** AI-powered chatbot for follow-up queries.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer       | Technologies                  |
 |-------------|-------------------------------|
@@ -25,7 +24,7 @@
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 1. **Clone the repository**
    git clone https://github.com/yourusername/aminoverse.git
