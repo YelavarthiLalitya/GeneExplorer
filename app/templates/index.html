@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aminoverse | Protein Insight</title>
+  <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Times New Roman', serif;
+      background-color: #f5f5f5;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      grid-gap: 20px;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      text-align: center;
+      margin-top: 2rem;
+      grid-column: span 2;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #666;
+      text-align: center;
+    }
+    input, button {
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    input[type="text"] {
+      width: 80%;
+      max-width: 500px;
+      display: inline-block;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-weight: normal;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      height: 350px;
+      overflow-y: auto;
+    }
+    .section h3 {
+      font-size: 1.8rem;
+      color: #007BFF;
+      margin-bottom: 15px;
+    }
+    .chatbot-section {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #result, #chatOutput {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      height: 250px;
+    }
+    #structureViewer iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      border-radius: 8px;
+    }
+    footer {
+      text-align: center;
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      font-size: 1rem;
+      grid-column: span 2;
+    }
+    .interaction-item, .chat-entry {
+      padding: 8px;
+      background-color: #fff;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .interaction-item {
+      margin-bottom: 5px;
+    }
+    .chat-entry {
+      margin: 6px 0;
+    }
+    .user {
+      font-weight: normal;
+      color: #333;
+    }
+    .ai {
+      color: #555;
+      margin-left: 20px;
+    }
+
+    /* Updated Grid Layout for 3 components per line */
+    .three-column-layout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+      grid-column: span 2;
+    }
+
+    .three-column-layout .section {
+      padding: 15px;
+      height: 350px;
+      overflow-y: auto;
+    }
+
+    /* Full width for Chatbot section */
+    .chatbot-section {
+      grid-column: span 2;
+      margin-top: 30px;
+    }
+
+    /* Heatmap Section Styling */
+     .heatmap-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      grid-column: span 2;
+    }
+    #heatmap {
+      height: 400px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    } 
+
+    /* Loading Message Styling */
+    #loadingMessage {
+      font-size: 1.2rem;
+      color: #007BFF;
+      text-align: center;
+      display: none; /* Hidden by default */
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Aminoverse</h1>
+  <p>Enter a human gene or protein name below to get insights</p>
+
+  <!-- Loading Message -->
+  <div id="loadingMessage">Loading, please wait...</div>
+
+  <!-- Main Search Section -->
+  <div class="section">
+    <input type="text" id="geneInput" name="geneInput" />
+    <button onclick="searchFunction()">Search</button>
+  </div>
+
+  <!-- 3 Components per Line Section -->
+  <div class="three-column-layout">
+    <!-- Section 1 -->
+    <div class="section">
+      <h3>Protein–Protein Interactions</h3>
+      <ul id="interactionList"></ul>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section">
+      <h3>Known Diseases Linked to the Gene</h3>
+      <ul id="diseaseList"></ul>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section">
+      <h3>Variant Information</h3>
+      <ul id="variantList"></ul>
+    </div>
+  </div>
+
+  <!-- Heatmap Section (commented out) -->
+ <div class="heatmap-section">
+    <h3>Population Frequency Heatmap</h3>
+    <div id="heatmap"></div> <!-- Placeholder for heatmap -->
+  </div> 
+
+  <!-- Chatbot Section -->
+  <div class="chatbot-section">
+    <h3>Chat with the Bot!</h3>
+    <div id="chatOutput"></div>
+    <input type="text" id="chatInput" placeholder="Ask a question..." />
+    <button onclick="sendChat()">Send</button>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Aminoverse. All rights reserved.</p>
+  </footer>
+
+  <script>
+    async function searchFunction() {
+      const gene = document.getElementById('geneInput').value;
+      const resultDiv = document.getElementById('result');
+      const structureDiv = document.getElementById('structureViewer');
+      const interactionsDiv = document.getElementById('interactionList');
+      const diseaseDiv = document.getElementById('diseaseList');
+      const variantDiv = document.getElementById('variantList');
+      const heatmapDiv = document.getElementById('heatmap');
+      const loadingMessage = document.getElementById('loadingMessage');
+      
+      // Show the loading message
+      loadingMessage.style.display = 'block';
+
+      // Clear previous data
+      resultDiv.innerHTML = '';
+      structureDiv.innerHTML = '';
+      interactionsDiv.innerHTML = '';
+      diseaseDiv.innerHTML = '';
+      variantDiv.innerHTML = '';
+      heatmapDiv.innerHTML = ''; // Clear previous heatmap
+
+      try {
+        const [functionRes, interactionRes, diseaseRes, variantRes, heatmapRes] = await Promise.all([
+          fetch(`/api/biological-function?gene=${gene}`),
+          fetch(`/api/protein-interactions?gene=${gene}`),
+          fetch(`/api/diseases?gene=${gene}`),
+          fetch(`/api/variants?gene=${gene}`),
+          fetch(`/api/population-frequency?gene=${gene}`)
+        ]);
+
+        const [functionData, interactionData, diseaseData, variantData, heatmapData] = await Promise.all([ 
+          functionRes.json(), 
+          interactionRes.json(), 
+          diseaseRes.json(), 
+          variantRes.json(), 
+          heatmapRes.json() 
+        ]);
+
+        // Biological function and structure display
+        if (functionData.error) {
+          resultDiv.innerHTML = `<p style="color:red;"> ${functionData.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <h3>Function of ${gene} (Accession: ${functionData.accession})</h3>
+            <p>${functionData.function}</p>
+          `;
+          if (functionData.structure_url) {
+            structureDiv.innerHTML = `
+              <h4>3D Structure</h4>
+              <iframe src="${functionData.structure_url}" width="100%" height="500" frameborder="0"></iframe>
+              <p><a href="${functionData.structure_url}" target="_blank">Open in new tab</a></p>
+            `;
+          } else {
+            structureDiv.innerHTML = `<p>No 3D structure available.</p>`;
+          }
+        }
+
+        // Protein-Protein Interactions
+        if (interactionData.interactions && interactionData.interactions.length > 0) {
+          interactionData.interactions.forEach((interaction) => {
+            const item = document.createElement("li");
+            item.classList.add("interaction-item");
+            item.innerText = `${interaction.name} (score: ${interaction.score.toFixed(2)})`;
+            interactionsDiv.appendChild(item);
+          });
+        } else {
+          interactionsDiv.innerHTML = `<p>No interactions found.</p>`;
+        }
+
+        // Diseases Linked
+        if (diseaseData.diseases && diseaseData.diseases.length > 0) {
+          diseaseData.diseases.forEach((disease) => {
+            const item = document.createElement("li");
+            item.innerText = disease;
+            diseaseDiv.appendChild(item);
+          });
+        } else {
+          diseaseDiv.innerHTML = `<p>No diseases linked to this gene.</p>`;
+        }
+
+        // Variant Information
+        if (variantData.clinvar && variantData.clinvar.variants) {
+          variantData.clinvar.variants.forEach((variant) => {
+            const item = document.createElement("li");
+            item.innerText = `Variant ID: ${variant.variant_id}, Clinical Significance: ${variant.clinical_significance}`;
+            variantDiv.appendChild(item);
+          });
+        } else {
+          variantDiv.innerHTML += `<p>No ClinVar variant data available.</p>`;
+        }
+
+        if (heatmapData && heatmapData.data) {
+          const heatmap = new Chart(heatmapDiv, {
+            type: 'heatmap',
+            data: {
+              labels: heatmapData.labels,
+              datasets: [{
+                label: 'Population Frequency',
+                data: heatmapData.data,
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+              }]
+            }
+          });
+        } else {
+          heatmapDiv.innerHTML = `<p>No heatmap data available for this gene.</p>`;
+        }
+
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error fetching data.</p>`;
+        console.error(err);
+      }
+
+      // Hide the loading message once data is loaded
+      loadingMessage.style.display = 'none';
+    }
+
+    async function sendChat() {
+      const chatInput = document.getElementById("chatInput").value;
+      const chatOutput = document.getElementById("chatOutput");
+
+      if (!chatInput.trim()) return;
+
+      chatOutput.innerHTML += `<div class="chat-entry user">You: ${chatInput}</div>`;
+
+      try {
+        const response = await fetch(`/api/chat?message=${encodeURIComponent(chatInput)}`);
+        const data = await response.json();
+
+        chatOutput.innerHTML += `<div class="chat-entry ai">Bot: ${data.reply}</div>`;
+      } catch (err) {
+        chatOutput.innerHTML += `<div class="chat-entry ai">Bot: Sorry, there was an error processing your request.</div>`;
+        console.error(err);
+      }
+
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+  </script>
+</body>
+</html>
